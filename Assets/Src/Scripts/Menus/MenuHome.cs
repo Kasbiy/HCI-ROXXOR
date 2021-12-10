@@ -1,8 +1,9 @@
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace YsoCorp {
 
-    public  class MenuHome : AMenu {
+    public class MenuHome : AMenu {
 
         public Button bPlay;
         public Button bSelect;
@@ -13,6 +14,7 @@ namespace YsoCorp {
         public Button bSetting;
         public Button bRemoveAds;
 
+        public DOTweenAnimation[] cTween;
         public Text levelIndex;
 
         private UnlockableCharacter[] unlockableCharacters;
@@ -70,6 +72,17 @@ namespace YsoCorp {
                 currentPlayer = Instantiate(unlockableCharacters[newUnlockableCharacterIndex].player);
                 currentPlayer.Reset();
             }
+        }
+
+        public override void Display() {
+            base.Display();
+
+            foreach (DOTweenAnimation cmove in cTween) { cmove.DOPlay(); }
+        }
+        public override void Hide() {
+            base.Hide();
+
+            foreach (DOTweenAnimation cmove in cTween) { cmove.DOPlayBackwards(); }
         }
 
     }
