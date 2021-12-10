@@ -9,6 +9,7 @@ namespace YsoCorp {
         private static Game GAME;
         private static DataManager DATAMANAGER;
         private static ResourcesManager RESOURCESMANAGER;
+        private static UnlockableResourcesManager UNLOCKABLERESOURCESMANAGER;
         private static GameUtils.YCManager YCMANAGER;
         private static Player PLAYER;
         private static Cam CAM;
@@ -16,6 +17,7 @@ namespace YsoCorp {
         public Game game { get { return GAME; } private set { } }
         public DataManager dataManager { get { return DATAMANAGER; } private set { } }
         public ResourcesManager resourcesManager { get { return RESOURCESMANAGER; } private set { } }
+        public UnlockableResourcesManager unlockableResourcesManager { get { return UNLOCKABLERESOURCESMANAGER; } private set { } }
         public GameUtils.YCManager ycManager { get { return YCMANAGER; } private set { } }
         public Player player { get { return PLAYER; } private set { } }
         public Cam cam { get { return CAM; } private set { } }
@@ -34,6 +36,9 @@ namespace YsoCorp {
                     }
                     if (RESOURCESMANAGER == null) {
                         RESOURCESMANAGER = g.GetComponentInChildren<ResourcesManager>(true);
+                    }
+                    if (UNLOCKABLERESOURCESMANAGER == null) {
+                        UNLOCKABLERESOURCESMANAGER = g.GetComponentInChildren<UnlockableResourcesManager>(true);
                     }
                     if (PLAYER == null) {
                         PLAYER = g.GetComponentInChildren<Player>(true);

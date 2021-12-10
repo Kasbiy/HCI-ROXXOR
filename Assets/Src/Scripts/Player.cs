@@ -1,31 +1,23 @@
-using UnityEngine;
-using DG.Tweening.Core;
-using DG.Tweening.Plugins.Options;
 using DG.Tweening;
+using UnityEngine;
+using UnityEngine.Events;
 
 namespace YsoCorp {
 
     public class Player : Movable {
 
-        private static float LEFT_LIMIT = -2f;
-        private static float RIGHT_LIMIT = 2f;
         private static float SPEED_ROTATION = 25f;
         private static float SPEED_ACCELERATION = 0.5f;
         private static float SPEED = 4f;
-        private static float ROTATION_SENSITIVITY = 0.2f;
-        private static float MOVE_SENSITIVITY = 0.01f; 
-        private static float MAX_ANGLE = 35f;
 
-        public bool movementsWithRotation;
-        public bool preventFall;
+        private static float SWIPE_MIN_DISTANCE = 50f;
 
+        private float _swipeDistance;
         private bool _isMoving;
-        private Vector3 _slideMove;
         private Animator _animator;
         private Quaternion _rotation;
         private Rigidbody _rigidbody;
         private RagdollBehaviour _ragdollBehviour;
-        private TweenerCore<float, float, FloatOptions> _rotationTween;
 
         public bool isAlive { get; protected set; }
         public float speed { get; private set; }
@@ -92,18 +84,17 @@ namespace YsoCorp {
 
             this.speed = Mathf.Clamp(this.speed, 0, SPEED);
             if (this.speed != 0) {
-                this._rigidbody.MovePosition(this._rigidbody.position + this.transform.forward * this.speed * Time.fixedDeltaTime + this._slideMove);
+                this._rigidbody.MovePosition(this._rigidbody.position + this.transform.forward * this.speed * Time.fixedDeltaTime);
                 this._rigidbody.MoveRotation(Quaternion.RotateTowards(this._rigidbody.rotation, this._rotation, SPEED_ROTATION));
-                this._slideMove = Vector3.zero;
-
-                if (this.preventFall == true) {
-                    this.BlockPlayerFromFalling();
-                }
             }
         }
 
-        private void BlockPlayerFromFalling() {
-            this._rigidbody.position = new Vector3(Mathf.Clamp(this._rigidbody.position.x, LEFT_LIMIT, RIGHT_LIMIT), this._rigidbody.position.y, this._rigidbody.position.z);
+        private void SwipeUp() {
+            this._animator.SetTrigger("Jump");
+        }
+
+        private void SwipeDown() {
+            this._animator.SetTrigger("Stomp");
         }
 
         public override void GesturePanDown() {
@@ -111,56 +102,58 @@ namespace YsoCorp {
                 return;
             }
 
-            this._rotationTween.Kill();
-
-            this._isMoving = true;
+            _swipeDistance = 0;
         }
 
-        public override void GesturePanDeltaX(float deltaX) {
+        public override void GesturePanDeltaY(float deltaY) {
             if (this.game.state != Game.States.Playing || this.isAlive == false) {
                 return;
             }
 
-            if (this.movementsWithRotation == true) {
-                this.RotateClamped(deltaX);
-            } else {
-                this.Slide(deltaX);
+            if ((_swipeDistance < 0 && deltaY > 0) || (_swipeDistance > 0 && deltaY < 0)) {
+                _swipeDistance = 0;
+            }
+            _swipeDistance += deltaY;
+            if (_swipeDistance < 0 && -_swipeDistance >= SWIPE_MIN_DISTANCE / this.ScreenScaleH()) {
+                SwipeDown();
+            } else if (_swipeDistance > 0 && _swipeDistance >= SWIPE_MIN_DISTANCE / this.ScreenScaleH()) {
+                SwipeUp();
             }
         }
 
-        private void Slide(float deltaX) {
-            this._slideMove = new Vector3(deltaX * MOVE_SENSITIVITY, 0 , 0);
-        }
+        public void FollowPath(DOTweenPath path) {
+            Transform oldParent = transform.parent;
 
-        public override void GesturePanUp() {
-            if (this.game.state != Game.States.Playing || this.isAlive == false) {
-                return;
+            void OnPathStarted() {
+                transform.SetParent(path.transform);
+                _rigidbody.isKinematic = true;
+                this.speed = 0;
+                this._isMoving = false;
+                this._animator?.SetBool("Moving", false);
             }
 
-            this.ResetRotation();
+            void OnPathCompleted() {
+                transform.SetParent(oldParent);
+                _rigidbody.isKinematic = false;
+                this._isMoving = true;
+                this._animator?.SetBool("Moving", true);
+                path.onPlay.RemoveListener(OnPathStarted);
+                path.onComplete.RemoveListener(OnPathCompleted);
+            }
+
+            if (!path.hasOnPlay) {
+                path.hasOnPlay = true;
+                path.onPlay = new UnityEvent();
+            }
+            path.onPlay.AddListener(OnPathStarted);
+
+            if (!path.hasOnComplete) {
+                path.hasOnComplete = true;
+                path.onComplete = new UnityEvent();
+            }
+            path.onComplete.AddListener(OnPathCompleted);
+
+            path.DOPlay();
         }
-
-        private void ResetRotation() {
-            float duration = this._rotation.y / 40;
-            this._rotationTween.Kill();
-
-            this._rotationTween = DOTween.To(
-                () => this._rotation.y,
-                (value) => this._rotation = Quaternion.Euler(0f, value, 0),
-                0, duration).SetEase(Ease.Linear);
-        }
-
-        public void RotateClamped(float deltaX) {
-            float eulerAngle = transform.localEulerAngles.y;
-            
-            eulerAngle = (eulerAngle > 180) ? eulerAngle - 360 : eulerAngle;
-            
-            float angle = eulerAngle + deltaX * ROTATION_SENSITIVITY;
-            float clampedAngle = Mathf.Clamp(angle, -MAX_ANGLE, MAX_ANGLE);
-
-            this._rotation = Quaternion.Euler(0f, clampedAngle, 0);
-        }
-
     }
-
 }

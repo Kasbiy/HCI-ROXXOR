@@ -5592,6 +5592,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e1ad4e70d13a1d41949d469152eb8ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tenjinData:
+    is_init: 0
+    advertising_id: 
+    ad_network: 
+    campaign_id: 
+    campaign_name: 
+    site_id: 
+    referrer: 
+    deferred_deeplink_url: 
+    clicked_tenjin_link: 0
+    is_first_session: 0
 --- !u!1 &8063485918969263869
 GameObject:
   m_ObjectHideFlags: 0

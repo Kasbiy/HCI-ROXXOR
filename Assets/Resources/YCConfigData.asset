@@ -19,25 +19,26 @@ MonoBehaviour:
   SoundMusic: 0
   InAppRemoveAds: 
   InAppRemoveAdsCanRemoveInBanner: 1
-  InAppConsumables: []
+  NotifAuthorizationAlert: 1
+  NotifAuthorizationBadge: 1
+  NotifAuthorizationSound: 1
   ABVersion: 1
-  ABPercentMax: 1
-  ABPercent: 0.05
   ABForcedSample: 
   ABSamples: []
   RateBoxShow: 0
+  BannerDisplayOnInit: 1
   InterstitialInterval: 30
   Name: 
   FbAppId: 
   appleId: 
   MmpAdjust: 0
   MmpAdjustAppToken: 
-  MmpSingular: 0
   MmpTenjin: 0
+  AdMobAndroidAppId: 
+  AdMobIosAppId: 
   IosInterstitial: 
   IosRewarded: 
   IosBanner: 
   AndroidInterstitial: 
   AndroidRewarded: 
   AndroidBanner: 
-  MaxForceInit: 0

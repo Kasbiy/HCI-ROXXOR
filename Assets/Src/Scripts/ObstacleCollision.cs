@@ -13,10 +13,10 @@ namespace YsoCorp {
         private void OnTriggerEnter(Collider collision) {
             if (collision.transform.CompareTag("Obstacle") == true) {
                 this.KillPlayer(collision.transform);
-            }
-            else if (collision.transform.CompareTag("interactive") == true) 
-            {
-                collision.transform.GetComponent<Interactive>().interact();
+            } else if (collision.transform.CompareTag("Interactable") == true) {
+                if (collision.TryGetComponent(out Interactable interactable)) {
+                    interactable.Interact();
+                }
             } else if (collision.transform.CompareTag("Finish") == true) {
                 this.Finish();
             }
