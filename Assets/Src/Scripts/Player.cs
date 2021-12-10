@@ -12,8 +12,12 @@ namespace YsoCorp {
 
         private static float SWIPE_MIN_DISTANCE = 50f;
 
+        [SerializeField] private AnimationCurve jumpAnimation;
+        [SerializeField] private AnimationCurve specialJumpAnimation;
+
         private float _swipeDistance;
         private bool _isMoving;
+        private float _jumpTime;
         private Animator _animator;
         private Quaternion _rotation;
         private Rigidbody _rigidbody;
@@ -87,10 +91,20 @@ namespace YsoCorp {
                 this._rigidbody.MovePosition(this._rigidbody.position + this.transform.forward * this.speed * Time.fixedDeltaTime);
                 this._rigidbody.MoveRotation(Quaternion.RotateTowards(this._rigidbody.rotation, this._rotation, SPEED_ROTATION));
             }
+
+            /*
+            if (_jumpTime == 0) {
+                this._rigidbody.AddForce(this.transform.up * 1000f);
+            }
+            _jumpTime += Time.fixedDeltaTime;
+            if (_jumpTime >= 1) {
+                _jumpTime = 0;
+            }
+            */
         }
 
         private void SwipeUp() {
-            this._animator.SetTrigger("Jump");
+//            this._animator.SetTrigger("Jump");
         }
 
         private void SwipeDown() {
