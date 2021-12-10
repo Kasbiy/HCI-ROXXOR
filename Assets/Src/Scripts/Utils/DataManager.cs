@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace YsoCorp {
@@ -7,7 +8,6 @@ namespace YsoCorp {
 
         private static string PSEUDO = "PSEUDO";
         private static string LEVEL = "LEVEL";
-        private static string NUMCHARACTER = "NUMCHARACTER";
 
         private static int DEFAULT_LEVEL = 1;
 
@@ -28,7 +28,7 @@ namespace YsoCorp {
             return level;
         }
 
-        //PLAYER NAME
+        // PLAYER NAME
         public string GetPseudo() {
             return this.GetString(PSEUDO, "Player");
         }
@@ -36,20 +36,33 @@ namespace YsoCorp {
             this.SetString(PSEUDO, pseudo);
         }
 
-        // NUM CHARACTER
-        public int GetNumCharacter() {
-            return this.GetInt(NUMCHARACTER, -1);
-        }
-        public void SetNumCharacter(int num) {
-            this.SetInt(NUMCHARACTER, num);
-        }
-        public void UnlockNumCharacter(int num) {
-            this.SetInt(NUMCHARACTER + num, 1);
-        }
-        public bool IsUnlockNumCharacter(int num) {
-            this.UnlockNumCharacter(0);
-            return this.GetInt(NUMCHARACTER + num, 0) == 1;
+        // UNLOCKABLE
+        private string GetId<T>() where T : UnlockableItem {
+            return (string)typeof(T).GetField("ID").GetValue(null);
         }
 
+        public int[] GetUnlocked<T>() where T : UnlockableItem {
+            return this.GetArray<int>(GetId<T>() + "/unlocked");
+        }
+        public void SetUnlocked<T>(int num) where T : UnlockableItem {
+            int[] unlocked = this.GetArray<int>(GetId<T>() + "/unlocked");
+            Array.Resize(ref unlocked, unlocked.Length + 1);
+            unlocked[unlocked.Length - 1] = num;
+            this.SetArray(GetId<T>() + "/unlocked", unlocked);
+        }
+        public bool IsUnlocked<T>(int num) where T : UnlockableItem {
+            int[] unlocked = this.GetArray<int>(GetId<T>() + "/unlocked");
+            return Array.IndexOf(unlocked, num) != -1;
+        }
+
+        public int GetSelected<T>() where T : UnlockableItem {
+            return this.GetInt(GetId<T>() + "/selected");
+        }
+        public void SetSelected<T>(int num) where T : UnlockableItem {
+            this.SetInt(GetId<T>() + "/selected", num);
+        }
+        public bool IsSelected<T>(int num) where T : UnlockableItem {
+            return GetSelected<T>() == num;
+        }
     }
 }

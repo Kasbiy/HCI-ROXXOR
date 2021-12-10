@@ -40,9 +40,6 @@ namespace YsoCorp {
                     if (UNLOCKABLERESOURCESMANAGER == null) {
                         UNLOCKABLERESOURCESMANAGER = g.GetComponentInChildren<UnlockableResourcesManager>(true);
                     }
-                    if (PLAYER == null) {
-                        PLAYER = g.GetComponentInChildren<Player>(true);
-                    }
                     if (CAM == null) {
                         CAM = g.GetComponentInChildren<Cam>(true);
                     }
@@ -51,7 +48,6 @@ namespace YsoCorp {
                     }
                 }
             }
-
         }
 
         protected virtual void OnApplicationQuit() {
@@ -67,7 +63,7 @@ namespace YsoCorp {
         protected virtual void OnDestroyNotQuitting() { }
 
         bool IsInit() {
-            return GAME != null && DATAMANAGER != null && RESOURCESMANAGER != null && PLAYER != null && CAM != null;
+            return GAME != null && DATAMANAGER != null && RESOURCESMANAGER != null && UNLOCKABLERESOURCESMANAGER != null && CAM != null;
         }
 
         private IEnumerator _InvokeCallback(float delay, Action lambda, bool unscaleTIme) {
@@ -91,5 +87,14 @@ namespace YsoCorp {
             return Screen.height / 2688f;
         }
 
+        public void ResetPlayer() {
+            UnlockableCharacter unlockableCharacter = unlockableResourcesManager.GetSelected<UnlockableCharacter>();
+
+            if (player != null) {
+                Destroy(player.gameObject);
+            }
+            PLAYER = Instantiate(unlockableCharacter.player, this.game.transform);
+            player.Reset();
+        }
     }
 }

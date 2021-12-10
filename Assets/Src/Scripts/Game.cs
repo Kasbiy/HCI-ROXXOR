@@ -58,6 +58,7 @@ namespace YsoCorp {
 
         private void Start() {
             this.game.state = States.Home;
+            this.ResetPlayer();
         }
 
         public void Win() {
@@ -81,7 +82,7 @@ namespace YsoCorp {
             this.ResetTrash();
 
             this.map = Instantiate(this.resourcesManager.GetMap(), this.transform).GetComponent<Map>();
-            this.player.Reset();
+            this.player?.Reset();
             this.GetComponent<PanController>().Reset();
         }
 
