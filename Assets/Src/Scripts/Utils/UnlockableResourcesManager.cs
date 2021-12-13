@@ -48,9 +48,6 @@ namespace YsoCorp {
         }
 
         public T GetSelected<T>() where T : UnlockableItem {
-            Debug.Log(GetSelectedNum<T>());
-            Debug.Log(GetUnlockableItems(typeof(T)));
-            Debug.Log(GetUnlockableItems(typeof(T)).Length);
             return GetUnlockableItems(typeof(T))[GetSelectedNum<T>()] as T;
         }
 

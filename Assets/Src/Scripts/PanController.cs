@@ -1,4 +1,5 @@
-﻿using DigitalRubyShared;
+﻿using System;
+using DigitalRubyShared;
 
 namespace YsoCorp {
 
@@ -16,6 +17,21 @@ namespace YsoCorp {
             this._movables = this.game.GetComponentsInChildren<Movable>();
             FingersScript.Instance.ShowTouches = false;
             this.InitPan();
+        }
+
+        public void AddMovable(Movable movable) {
+            Array.Resize(ref _movables, _movables.Length + 1);
+            _movables[_movables.Length - 1] = movable;
+        }
+
+        public void RemoveMovable(Movable movable) {
+            int index = Array.IndexOf(_movables, movable);
+
+            if (index >= 0) {
+                _movables[index] = _movables[_movables.Length - 1];
+                _movables[_movables.Length - 1] = null;
+                Array.Resize(ref _movables, _movables.Length - 1);
+            }
         }
 
         void InitPan() {
