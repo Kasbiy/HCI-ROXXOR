@@ -1,5 +1,4 @@
 using UnityEngine.UI;
-using DG.Tweening;
 
 namespace YsoCorp {
 
@@ -8,14 +7,15 @@ namespace YsoCorp {
         public Button bPlay;
         public Button bSelect;
         public Button bBuy;
-        public Button bWatchAdd;
+        public Button bWatchAds;
         public Button bPrev;
         public Button bNext;
         public Button bSetting;
         public Button bRemoveAds;
 
-        public DOTweenAnimation[] cTween;
         public Text levelIndex;
+        public Text unlockDescription;
+        public Text price;
 
         private UnlockableCharacter[] unlockableCharacters;
         private int selectedUnlockableCharacterIndex;
@@ -35,13 +35,15 @@ namespace YsoCorp {
             this.bSelect.onClick.AddListener(() => {
                 selectedUnlockableCharacterIndex = currentUnlockableCharacterIndex;
                 this.unlockableResourcesManager.Select(unlockableCharacters[selectedUnlockableCharacterIndex]);
-                ResetPlayer();
+                this.ResetPlayer();
             });
             this.bPrev.onClick.AddListener(() => {
-                SetModelIndex(currentUnlockableCharacterIndex - 1);
+                this.SetModelIndex(currentUnlockableCharacterIndex - 1);
+                LookPrevNextButton();
             });
             this.bNext.onClick.AddListener(() => {
-                SetModelIndex(currentUnlockableCharacterIndex + 1);
+                this.SetModelIndex(currentUnlockableCharacterIndex + 1);
+                LookPrevNextButton();
             });
             this.bSetting.onClick.AddListener(() => {
                 this.ycManager.settingManager.Show();
@@ -49,10 +51,17 @@ namespace YsoCorp {
             this.bRemoveAds.onClick.AddListener(() => {
                 this.ycManager.inAppManager.BuyProductIDAdsRemove();
             });
+
+            LookPrevNextButton();
         }
 
         public void Update() {
             this.bRemoveAds.gameObject.SetActive(this.ycManager.ycConfig.InAppRemoveAds != "" && this.ycManager.dataManager.GetAdsShow());
+        }
+
+        void LookPrevNextButton() {
+            this.bPrev.interactable = currentUnlockableCharacterIndex > 0;
+            this.bNext.interactable = currentUnlockableCharacterIndex < unlockableCharacters.Length - 1;
         }
 
         void SetModelIndex(int newUnlockableCharacterIndex) {
@@ -65,24 +74,50 @@ namespace YsoCorp {
                 this.player.gameObject.SetActive(false);
             }
 
-            if (currentUnlockableCharacterIndex == selectedUnlockableCharacterIndex) {
+            UnlockableCharacter currentCharacter = unlockableCharacters[currentUnlockableCharacterIndex];
+            bool isUnlocked = this.unlockableResourcesManager.IsUnlocked(currentCharacter);
+            bool isSelected = currentUnlockableCharacterIndex == selectedUnlockableCharacterIndex;
+
+            this.bPlay.gameObject.SetActive(isSelected);
+            if (isSelected) {
+                this.bSelect.gameObject.SetActive(false);
+                this.bBuy.gameObject.SetActive(false);
+                this.bWatchAds.gameObject.SetActive(false);
+                this.unlockDescription.gameObject.SetActive(false);
+
                 this.player.gameObject.SetActive(true);
                 this.player.Reset();
             } else {
-                currentPlayer = Instantiate(unlockableCharacters[newUnlockableCharacterIndex].player);
+                this.bSelect.gameObject.SetActive(isUnlocked);
+                if (!isUnlocked) {
+                    int mapNumber = this.resourcesManager.GetMapNumber();
+                    int interstitialsNumber = this.ycManager.dataManager.GetInterstitialsNb();
+
+                    if (currentCharacter.levelForUnlock != -1 && mapNumber < currentCharacter.levelForUnlock) {
+                        this.bBuy.gameObject.SetActive(false);
+                        this.bWatchAds.gameObject.SetActive(false);
+                        this.unlockDescription.gameObject.SetActive(true);
+
+                        unlockDescription.text = "Reach level " + currentCharacter.levelForUnlock;
+                    } else if (currentCharacter.adsForUnlock != -1 && interstitialsNumber < currentCharacter.adsForUnlock) {
+                        this.bBuy.gameObject.SetActive(false);
+                        this.bWatchAds.gameObject.SetActive(false);
+                        this.unlockDescription.gameObject.SetActive(true);
+
+                        unlockDescription.text = interstitialsNumber + "/" + currentCharacter.levelForUnlock + " ads watched";
+                    } else {
+                        this.bBuy.gameObject.SetActive(true);
+                        this.bWatchAds.gameObject.SetActive(currentCharacter.watchAdsForUnlock);
+                        this.unlockDescription.gameObject.SetActive(false);
+
+                        this.bBuy.interactable = this.dataManager.GetCoins() >= currentCharacter.priceForUnlock;
+                        price.text = currentCharacter.priceForUnlock.ToString();
+                    }
+                }
+
+                currentPlayer = Instantiate(currentCharacter.player);
                 currentPlayer.Reset();
             }
-        }
-
-        public override void Display() {
-            base.Display();
-
-            foreach (DOTweenAnimation cmove in cTween) { cmove.DOPlay(); }
-        }
-        public override void Hide() {
-            base.Hide();
-
-            foreach (DOTweenAnimation cmove in cTween) { cmove.DOPlayBackwards(); }
         }
 
     }

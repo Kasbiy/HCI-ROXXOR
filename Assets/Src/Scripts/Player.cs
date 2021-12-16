@@ -39,6 +39,7 @@ namespace YsoCorp {
         protected override void OnDestroyNotQuitting() {
             base.OnDestroyNotQuitting();
 
+            this.game.onStateChanged -= this.Launch;
             this.game.GetComponent<PanController>().RemoveMovable(this);
         }
 

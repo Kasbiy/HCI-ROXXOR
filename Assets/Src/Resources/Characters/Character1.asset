@@ -14,4 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelForUnlock: 0
   adsForUnlock: 0
+  priceForUnlock: 100
+  watchAdsForUnlock: 1
   player: {fileID: 1428101062864541396, guid: a4e17fbb9f38144c18852d779140686d, type: 3}

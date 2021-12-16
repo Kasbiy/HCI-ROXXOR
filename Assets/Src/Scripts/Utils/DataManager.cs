@@ -6,8 +6,9 @@ namespace YsoCorp {
     [DefaultExecutionOrder(-1)]
     public class DataManager : ADataManager {
 
-        private static string PSEUDO = "PSEUDO";
         private static string LEVEL = "LEVEL";
+        private static string PSEUDO = "PSEUDO";
+        private static string COINS = "Coins";
 
         private static int DEFAULT_LEVEL = 1;
 
@@ -34,6 +35,20 @@ namespace YsoCorp {
         }
         public void SetPseudo(string pseudo) {
             this.SetString(PSEUDO, pseudo);
+        }
+
+        // COINS
+        public int GetCoins() {
+            return this.GetInt(COINS);
+        }
+        public void SetCoins(int coins) {
+            this.SetInt(COINS, coins);
+        }
+        public void AddCoins(int coins) {
+            SetCoins(GetCoins() + coins);
+        }
+        public void RemoveCoins(int coins) {
+            SetCoins(GetCoins() - coins);
         }
 
         // UNLOCKABLE

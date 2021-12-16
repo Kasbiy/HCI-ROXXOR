@@ -7,8 +7,11 @@ namespace YsoCorp {
         public const string PATH = "";
         public const string ID = "";
 
-        public int levelForUnlock;
-        public int adsForUnlock;
+        public int levelForUnlock = -1;
+        public int adsForUnlock = -1;
+
+        public int priceForUnlock = -1;
+        public bool watchAdsForUnlock = false;
 
     }
 
