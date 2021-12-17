@@ -18,10 +18,14 @@ namespace YsoCorp {
                 .SetLoops(-1);
         }
 
-        public override void Interact() {
-            this.dataManager.AddCoins(quantity);
+        protected override void OnDestroyNotQuitting() {
+            base.OnDestroyNotQuitting();
 
             transform.DOKill();
+        }
+
+        public override void Interact() {
+            this.dataManager.AddCoins(quantity);
             Destroy(gameObject);
 
             return;

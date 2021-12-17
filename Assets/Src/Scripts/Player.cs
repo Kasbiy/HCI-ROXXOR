@@ -1,17 +1,16 @@
-using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace YsoCorp {
 
     public class Player : Movable {
 
-        private static float SPEED_ACCELERATION = 0.5f;
-        private static float SPEED = 4f;
-        private static float MOVE_SENSITIVITY = 0.005f;
-        private static float JUMP_FORCE = 500f;
+        private const float SPEED_ACCELERATION = 0.1f;
+        private const float SPEED = 5f;
+        private const float MOVE_SENSITIVITY = 0.005f;
+        private const float JUMP_FORCE = 500f;
+        private const float SPECIAL_JUMP_FORCE = 1000f;
 
-        private static float SWIPE_MIN_DISTANCE = 50f;
+        private const float SWIPE_MIN_DISTANCE = 50f;
 
         private float _swipeDistance;
         private bool _isMoving;
@@ -19,6 +18,8 @@ namespace YsoCorp {
         private Animator _animator;
         private Rigidbody _rigidbody;
         private RagdollBehaviour _ragdollBehviour;
+        private bool _swipeUp;
+        private bool _swipeDown;
 
         public bool isAlive { get; protected set; }
         public float speed { get; private set; }
@@ -99,16 +100,31 @@ namespace YsoCorp {
             }
 
             if (Physics.Raycast(transform.position + new Vector3(0, 0.01f, 0), Vector3.down, 0.01f, LayerMask.GetMask("Ground"))) {
-                this._rigidbody.AddForce(Vector3.up * JUMP_FORCE);
+                if (_swipeUp) {
+                    _swipeUp = false;
+                    this._rigidbody.AddForce(Vector3.up * SPECIAL_JUMP_FORCE);
+                } else {
+                    this._rigidbody.AddForce(Vector3.up * JUMP_FORCE);
+                }
+
+                if (_swipeDown) {
+                    _swipeDown = false;
+                    Physics.gravity /= 25;
+                }
             }
         }
 
         private void SwipeUp() {
-//            this._animator.SetTrigger("Jump");
+            if (_swipeUp) return;
+
+            _swipeUp = true;
         }
 
         private void SwipeDown() {
-            this._animator.SetTrigger("Stomp");
+            if (_swipeDown) return;
+
+            _swipeDown = true;
+            Physics.gravity *= 25;
         }
 
         public override void GesturePanDown() {
@@ -141,41 +157,6 @@ namespace YsoCorp {
             } else if (_swipeDistance > 0 && _swipeDistance >= SWIPE_MIN_DISTANCE / this.ScreenScaleH()) {
                 SwipeUp();
             }
-        }
-
-        public void FollowPath(DOTweenPath path) {
-            Transform oldParent = transform.parent;
-
-            void OnPathStarted() {
-                transform.SetParent(path.transform);
-                _rigidbody.isKinematic = true;
-                this.speed = 0;
-                this._isMoving = false;
-                this._animator?.SetBool("Moving", false);
-            }
-
-            void OnPathCompleted() {
-                transform.SetParent(oldParent);
-                _rigidbody.isKinematic = false;
-                this._isMoving = true;
-                this._animator?.SetBool("Moving", true);
-                path.onPlay.RemoveListener(OnPathStarted);
-                path.onComplete.RemoveListener(OnPathCompleted);
-            }
-
-            if (!path.hasOnPlay) {
-                path.hasOnPlay = true;
-                path.onPlay = new UnityEvent();
-            }
-            path.onPlay.AddListener(OnPathStarted);
-
-            if (!path.hasOnComplete) {
-                path.hasOnComplete = true;
-                path.onComplete = new UnityEvent();
-            }
-            path.onComplete.AddListener(OnPathCompleted);
-
-            path.DOPlay();
         }
     }
 }
