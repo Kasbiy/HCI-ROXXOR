@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine.UI;
 
 namespace YsoCorp {
@@ -16,6 +17,7 @@ namespace YsoCorp {
         public Text levelIndex;
         public Text unlockDescription;
         public Text price;
+        public TMP_Text coin;
 
         private UnlockableCharacter[] unlockableCharacters;
         private int selectedUnlockableCharacterIndex;
@@ -33,9 +35,16 @@ namespace YsoCorp {
                 });
             });
             this.bSelect.onClick.AddListener(() => {
+                Destroy(currentPlayer.gameObject);
                 selectedUnlockableCharacterIndex = currentUnlockableCharacterIndex;
                 this.unlockableResourcesManager.Select(unlockableCharacters[selectedUnlockableCharacterIndex]);
                 this.ResetPlayer();
+                this.SetModelIndex(currentUnlockableCharacterIndex);
+            });
+            this.bBuy.onClick.AddListener(() => {
+                this.unlockableResourcesManager.TryUnlock(unlockableCharacters[currentUnlockableCharacterIndex]);
+                this.SetModelIndex(currentUnlockableCharacterIndex);
+                this.RefreshCoinText();
             });
             this.bPrev.onClick.AddListener(() => {
                 this.SetModelIndex(currentUnlockableCharacterIndex - 1);
@@ -55,8 +64,19 @@ namespace YsoCorp {
             LookPrevNextButton();
         }
 
+        public override void Display() {
+
+            base.Display();
+            this.RefreshCoinText();
+
+        }
+
         public void Update() {
             this.bRemoveAds.gameObject.SetActive(this.ycManager.ycConfig.InAppRemoveAds != "" && this.ycManager.dataManager.GetAdsShow());
+        }
+
+        void RefreshCoinText() {
+            this.coin.text = this.dataManager.GetCoins().ToString();
         }
 
         void LookPrevNextButton() {
@@ -110,7 +130,7 @@ namespace YsoCorp {
                         this.bWatchAds.gameObject.SetActive(currentCharacter.watchAdsForUnlock);
                         this.unlockDescription.gameObject.SetActive(false);
 
-                        this.bBuy.interactable = this.dataManager.GetCoins() >= currentCharacter.priceForUnlock;
+                        this.bBuy.interactable = this.unlockableResourcesManager.CanUnlock(currentCharacter);
                         price.text = currentCharacter.priceForUnlock.ToString();
                     }
                 }

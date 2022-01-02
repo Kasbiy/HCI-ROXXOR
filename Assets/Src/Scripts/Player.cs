@@ -9,6 +9,7 @@ namespace YsoCorp {
         private const float MOVE_SENSITIVITY = 0.005f;
         private const float JUMP_FORCE = 500f;
         private const float SPECIAL_JUMP_FORCE = 1000f;
+        private const float FALL_FORCE = 25f;
 
         private const float SWIPE_MIN_DISTANCE = 50f;
 
@@ -47,10 +48,10 @@ namespace YsoCorp {
         private void Launch(Game.States states) {
             if (states == Game.States.Playing) {
                 this._isMoving = true;
-                this._animator?.SetBool("Moving", true);
+                this._animator?.SetBool("Falling", true);
             } else if (states == Game.States.Win) {
                 this._isMoving = false;
-                this._animator?.SetBool("Moving", false);
+                this._animator?.SetBool("Falling", false);
                 this._animator?.SetTrigger("Win");
             } else if (states == Game.States.Lose) {
                 this._isMoving = false;
@@ -62,7 +63,7 @@ namespace YsoCorp {
             this._isMoving = false;
             if (this._animator != null) {
                 this._animator.enabled = true;
-                this._animator.SetBool("Moving", false);
+                this._animator.SetBool("Falling", false);
             }
 
             Transform spot = this.game.map.GetStartingPos();
@@ -99,7 +100,8 @@ namespace YsoCorp {
                 this._slideMove = Vector3.zero;
             }
 
-            if (Physics.Raycast(transform.position + new Vector3(0, 0.01f, 0), Vector3.down, 0.01f, LayerMask.GetMask("Ground"))) {
+            if (Physics.Raycast(transform.position + new Vector3(0, 0.02f, 0), Vector3.down, 0.02f, LayerMask.GetMask("Ground"))) {
+                this._animator.SetBool("Jump", true);
                 if (_swipeUp) {
                     _swipeUp = false;
                     this._rigidbody.AddForce(Vector3.up * SPECIAL_JUMP_FORCE);
@@ -109,7 +111,7 @@ namespace YsoCorp {
 
                 if (_swipeDown) {
                     _swipeDown = false;
-                    Physics.gravity /= 25;
+                    Physics.gravity /= FALL_FORCE;
                 }
             }
         }
@@ -124,7 +126,7 @@ namespace YsoCorp {
             if (_swipeDown) return;
 
             _swipeDown = true;
-            Physics.gravity *= 25;
+            Physics.gravity *= FALL_FORCE;
         }
 
         public override void GesturePanDown() {
@@ -153,8 +155,10 @@ namespace YsoCorp {
             }
             _swipeDistance += deltaY;
             if (_swipeDistance < 0 && -_swipeDistance >= SWIPE_MIN_DISTANCE / this.ScreenScaleH()) {
+                _swipeDistance = 0;
                 SwipeDown();
             } else if (_swipeDistance > 0 && _swipeDistance >= SWIPE_MIN_DISTANCE / this.ScreenScaleH()) {
+                _swipeDistance = 0;
                 SwipeUp();
             }
         }

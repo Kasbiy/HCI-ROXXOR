@@ -6,9 +6,7 @@ namespace YsoCorp {
     public class InteractableCoins : Interactable {
 
         [SerializeField] private int quantity;
-        [SerializeField] private RectTransform prefabCoin2D;
         [SerializeField] private float animRotationDuration = 0.5f;
-        [SerializeField] private float animCoin2DDuration = 0.5f;
 
         private void Start() {
             transform
@@ -25,12 +23,8 @@ namespace YsoCorp {
         }
 
         public override void Interact() {
-            this.dataManager.AddCoins(quantity);
+            this.game.menuGame.AddCoins(this.cam.ycCamera.WorldToScreenPoint(transform.position), quantity);
             Destroy(gameObject);
-
-            return;
-            RectTransform coin2D = Instantiate(prefabCoin2D, this.cam.ycCamera.WorldToScreenPoint(transform.position), Quaternion.identity, this.game.menuGame.transform);
-            coin2D.DOAnchorPos(Vector2.zero, animCoin2DDuration);
         }
 
     }

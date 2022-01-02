@@ -59,6 +59,18 @@ namespace YsoCorp {
             return this.dataManager.IsUnlocked<T>(GetIndexOf(unlockableItem));
         }
 
+        public bool CanUnlock<T>(T unlockableItem) where T : UnlockableItem {
+            return this.dataManager.GetCoins() >= unlockableItem.priceForUnlock;
+        }
+
+        public bool TryUnlock<T>(T unlockableItem) where T : UnlockableItem {
+            if (!CanUnlock(unlockableItem)) { return false; }
+
+            this.dataManager.SetCoins(this.dataManager.GetCoins() - unlockableItem.priceForUnlock);
+            this.dataManager.SetUnlocked<T>(GetIndexOf(unlockableItem));
+            return true;
+        }
+
         public bool TryUnlockByAds<T>(T unlockableItem) where T : UnlockableItem {
             bool isUnlocked = true;
 
