@@ -133,6 +133,10 @@ namespace YsoCorp {
                         this.bBuy.interactable = this.unlockableResourcesManager.CanUnlock(currentCharacter);
                         price.text = currentCharacter.priceForUnlock.ToString();
                     }
+                } else {
+                    this.bBuy.gameObject.SetActive(false);
+                    this.bWatchAds.gameObject.SetActive(false);
+                    this.unlockDescription.gameObject.SetActive(false);
                 }
 
                 currentPlayer = Instantiate(currentCharacter.player);
